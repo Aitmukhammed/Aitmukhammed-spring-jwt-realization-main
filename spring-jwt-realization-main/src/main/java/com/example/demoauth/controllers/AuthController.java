@@ -3,8 +3,10 @@ package com.example.demoauth.controllers;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,8 +35,10 @@ import com.example.demoauth.service.UserDetailsImpl;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Slf4j
+
 public class AuthController {
-	
+
 	@Autowired
 	AuthenticationManager authenticationManager;
 	
@@ -52,6 +56,7 @@ public class AuthController {
 	
 	@PostMapping("/signin")
 	public ResponseEntity<?> authUser(@RequestBody LoginRequest loginRequest) {
+		log.info("Received signin request for user: " + loginRequest.getUsername());
 		
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(
@@ -65,6 +70,8 @@ public class AuthController {
 		List<String> roles = userDetails.getAuthorities().stream()
 				.map(item -> item.getAuthority())
 				.collect(Collectors.toList());
+
+		log.info("User " + userDetails.getUsername() + " successfully authenticated");
 		
 		return ResponseEntity.ok(new JwtResponse(jwt, 
 				userDetails.getId(), 
@@ -91,16 +98,17 @@ public class AuthController {
 		User user = new User(signupRequest.getUsername(), 
 				signupRequest.getEmail(),
 				passwordEncoder.encode(signupRequest.getPassword()));
-		
+
 		Set<String> reqRoles = signupRequest.getRoles();
 		Set<Role> roles = new HashSet<>();
-		
+
 		if (reqRoles == null) {
 			Role userRole = roleRepository
 					.findByName(ERole.ROLE_USER)
 					.orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
 			roles.add(userRole);
-		} else {
+
+		}	else {
 			reqRoles.forEach(r -> {
 				switch (r) {
 				case "admin":
@@ -108,25 +116,27 @@ public class AuthController {
 						.findByName(ERole.ROLE_ADMIN)
 						.orElseThrow(() -> new RuntimeException("Error, Role ADMIN is not found"));
 					roles.add(adminRole);
-					
 					break;
+
 				case "mod":
 					Role modRole = roleRepository
 						.findByName(ERole.ROLE_MODERATOR)
 						.orElseThrow(() -> new RuntimeException("Error, Role MODERATOR is not found"));
 					roles.add(modRole);
-					
 					break;
 
 				default:
 					Role userRole = roleRepository
-						.findByName(ERole.ROLE_USER)
-						.orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
+							.findByName(ERole.ROLE_USER)
+							.orElseThrow(() -> new RuntimeException("Error, Role USER is not found"));
 					roles.add(userRole);
+					break;
+
 				}
 			});
 		}
 		user.setRoles(roles);
+
 		userRespository.save(user);
 		return ResponseEntity.ok(new MessageResponse("User CREATED"));
 	}
