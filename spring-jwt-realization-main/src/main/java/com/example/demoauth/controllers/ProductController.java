@@ -43,9 +43,10 @@ public class ProductController {
         User currentUser = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
-        Category category = categoryRepository.findById(productRequest.getCategory().getId())
+//        Category category = categoryRepository.findById(productRequest.getCategory().getId())
+        log.info("getCategoryCode: " + productRequest.getCategory().getCategoryCode());
+        Category category = categoryRepository.findByCategoryCode(productRequest.getCategory().getCategoryCode())
                 .orElseThrow(() -> new RuntimeException("Категория не найдена"));
-        log.info("CategoryId: " + productRequest.getCategory().getId());
 
         // Создаем новый продукт с переданными данными и текущим пользователем
         Product product = new Product(productRequest.getName(), productRequest.getPrice(),

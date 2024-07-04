@@ -19,6 +19,7 @@ import com.example.demoauth.configs.jwt.AuthEntryPointJwt;
 import com.example.demoauth.configs.jwt.AuthTokenFilter;
 import com.example.demoauth.service.UserDetailsServiceImpl;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebSecurity
@@ -60,11 +61,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
 				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.authorizeRequests()
-				.antMatchers("/api/auth/**").permitAll()
-				.antMatchers("/api/test/**").permitAll()
-				.antMatchers(HttpMethod.POST, "/api/add/products").hasRole("ADMIN") // Только администраторы могут добавлять продукты
-				.antMatchers(HttpMethod.PUT, "/api/update/product/**").hasRole("ADMIN") // Разрешаем обновление продукта только администраторам
-				.anyRequest().authenticated();
+					.antMatchers("/api/auth/**").permitAll()
+					.antMatchers("/api/test/**").permitAll()
+					.antMatchers(HttpMethod.POST, "/api/add/products").hasRole("ADMIN") // Только администраторы могут добавлять продукты
+					.antMatchers(HttpMethod.PUT, "/api/update/product/**").hasRole("ADMIN") // Разрешаем обновление продукта только администраторам
+					.antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+					.anyRequest().authenticated();
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
@@ -74,5 +76,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
 				.allowedOrigins("http://localhost:4200") // Разрешаем запросы только с этого адреса
 				.allowedMethods("GET", "POST", "PUT", "DELETE") // Разрешаем методы
 				.allowedHeaders("*"); // Разрешаем все заголовки
+//		        .allowCredentials(true);
+	}
+
+	@Override
+	public void addViewControllers(ViewControllerRegistry registry) {
+		registry.addViewController("/{spring:(?!api).*$}").setViewName("forward:/");
 	}
 }
