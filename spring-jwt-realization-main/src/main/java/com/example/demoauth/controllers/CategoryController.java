@@ -5,14 +5,19 @@ import com.example.demoauth.DTO.ProductDTO;
 import com.example.demoauth.details.ProductDetails;
 import com.example.demoauth.models.Category;
 import com.example.demoauth.models.Product;
+import com.example.demoauth.repository.CategoryRepository;
+import com.example.demoauth.repository.ProductRepository;
 import com.example.demoauth.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -21,6 +26,10 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     // Получить продукты по названию категории
     @GetMapping("/{categoryName}/products")
@@ -28,6 +37,7 @@ public class CategoryController {
         List<ProductDTO> products = categoryService.findProductsByCategoryName(categoryName);
         return ResponseEntity.ok(products);
     }
+
     @GetMapping("/all")
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         try {
@@ -38,10 +48,28 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
     @PostMapping("/create")
     public ResponseEntity<Category> createCategory(@RequestBody Category category) {
         Category newCategory = new Category(category.getName(), category.getCategoryCode());
         categoryService.save(newCategory);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/delete/category/{categoryId}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long categoryId) {
+        categoryService.deleteCategory(categoryId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/update/category/{categoryId}")
+    public ResponseEntity<Category> updateCategory(@PathVariable Long categoryId, @RequestBody Category updatedCategory) {
+        try {
+            Category category = categoryService.updateCategory(categoryId, updatedCategory);
+            return ResponseEntity.ok(category);
+        } catch (Exception e) {
+            log.error("Error updating category: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
