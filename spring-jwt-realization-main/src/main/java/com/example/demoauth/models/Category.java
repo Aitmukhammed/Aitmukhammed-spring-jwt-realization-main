@@ -1,12 +1,12 @@
 package com.example.demoauth.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
 
 @Data
 @Entity
@@ -18,6 +18,7 @@ public class Category implements Serializable {
     private String name;
     private Long categoryCode;
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Product> products = new HashSet<>();
 
     public Category() {}
@@ -49,5 +50,9 @@ public class Category implements Serializable {
     }
     public void setCategoryCode(Long categoryCode) {
         this.categoryCode = categoryCode;
+    }
+
+    public Long getCategoryCodeNum(Long code) {
+        return code;
     }
 }
