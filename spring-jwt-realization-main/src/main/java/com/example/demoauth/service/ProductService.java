@@ -46,6 +46,10 @@ public class ProductService {
         productRepository.save(product);
     }
 
+//    Метод isPresent() возвращает true, если значение присутствует.
+//    Метод get() возвращает это значение, но вызывает NoSuchElementException,
+//    если значение отсутствует.
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteProduct(Long productId) {
         Optional<Product> optionalProduct = productRepository.findById(productId);
@@ -54,7 +58,6 @@ public class ProductService {
             // Находим все корзины, содержащие удаляемый продукт
             List<Cart> cartsWithProduct = cartRepository.findByProduct(product);
             // Удаляем продукт из корзин
-            log.info("cartsWithProduct: " + cartsWithProduct);
             for (Cart cart : cartsWithProduct) {
                 cart.setProduct(null); // Удаление ссылки на продукт из корзины
                 cartRepository.save(cart);
@@ -62,7 +65,6 @@ public class ProductService {
             // Теперь можно безопасно удалить продукт
             productRepository.delete(product);
         } else {
-            // Обработка случая, когда продукт не найден
             throw new RuntimeException("Product not found with id: " + productId);
         }
     }
@@ -73,7 +75,7 @@ public class ProductService {
     }
 
     public List<ProductDetails> getAllProducts() {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findAllOrderByCategoryNameDesc();
         return products.stream()
                 .map(this::mapToProductDetails)
                 .collect(Collectors.toList());
@@ -84,15 +86,17 @@ public class ProductService {
             return null;
         }
         String username = (product.getUser() != null) ? product.getUser().getUsername() : "Unknown";
-        return new ProductDetails(product.getId(), product.getName(), product.getPrice(), product.getPictureUrl(), username);
+        return new ProductDetails(product.getId(), product.getName(), product.getPrice(), product.getPictureUrl(), username, product.getCategory());
     }
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
     }
-    public List<ProductDetails> getProductsByCategory(Long categoryId) {
-        List<Product> products = productRepository.findByCategoryId(categoryId);
-        return products.stream()
-                .map(this::mapToProductDetails)
-                .collect(Collectors.toList());
-    }
+
+// Нужно для функций = (getProductsByCategory) -> Подтягивает продуктов по id категории (Пока не надо = но функция работает)
+//    public List<ProductDetails> getProductsByCategory(Long categoryId) {
+//        List<Product> products = productRepository.findByCategoryId(categoryId);
+//        return products.stream()
+//                .map(this::mapToProductDetails)
+//                .collect(Collectors.toList());
+//    }
 }
