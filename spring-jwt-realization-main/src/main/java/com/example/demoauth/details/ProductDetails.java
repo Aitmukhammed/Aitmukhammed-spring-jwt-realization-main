@@ -1,18 +1,22 @@
 package com.example.demoauth.details;
 
+import com.example.demoauth.models.Category;
+
 public class ProductDetails {
     private Long id;
     private String name;
     private double price;
     private String pictureUrl;
     private String username;
+    private Category category;
 
-    public ProductDetails(Long id, String name, double price, String pictureUrl, String username) {
+    public ProductDetails(Long id, String name, double price, String pictureUrl, String username, Category category) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.pictureUrl = pictureUrl;
         this.username = username;
+        this.category = category;
     }
 
     public Long getId() {
@@ -53,5 +57,11 @@ public class ProductDetails {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+    public Category getCategory() {
+        return category;
+    }
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
