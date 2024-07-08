@@ -67,7 +67,6 @@ public class CategoryService {
     }
 
     public void save(Category category) {
-        log.info("category--: " + category);
         categoryRepository.save(category);
     }
 
