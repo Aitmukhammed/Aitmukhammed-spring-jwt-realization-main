@@ -44,7 +44,6 @@ public class ProductController {
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
 //        Category category = categoryRepository.findById(productRequest.getCategory().getId())
-        log.info("getCategoryCode: " + productRequest.getCategory().getCategoryCode());
         Category category = categoryRepository.findByCategoryCode(productRequest.getCategory().getCategoryCode())
                 .orElseThrow(() -> new RuntimeException("Категория не найдена"));
 
@@ -84,7 +83,11 @@ public class ProductController {
                 product.setPrice(updatedProductRequest.getPrice());
                 product.setPictureUrl(updatedProductRequest.getPictureUrl());
 
-                log.info("Name new product: " + updatedProductRequest.getName());
+                // Получаем полную информацию о категории
+                Category category = categoryRepository.findByCategoryCode(updatedProductRequest.getCategory().getCategoryCode())
+                        .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+                product.setCategory(category);
+
                 // Сохраняем обновленный продукт
                 productService.updateProduct(product);
 
@@ -98,39 +101,17 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/products/category/{categoryId}")
-    public ResponseEntity<List<ProductDetails>> getProductsByCategory(@PathVariable Long categoryId) {
-        try {
-             List<ProductDetails> productDetailsList = productService.getProductsByCategory(categoryId);
-             return ResponseEntity.ok(productDetailsList);
-        } catch (Exception e) {
-            log.error("Error fetching products by category: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
+// Подтягивает продуктов по id категории (Пока не надо = но функция работает)
+
+//    @GetMapping("/products/category/{categoryId}")
+//    public ResponseEntity<List<ProductDetails>> getProductsByCategory(@PathVariable Long categoryId) {
+//        try {
+//             List<ProductDetails> productDetailsList = productService.getProductsByCategory(categoryId);
+//             return ResponseEntity.ok(productDetailsList);
+//        } catch (Exception e) {
+//            log.error("Error fetching products by category: ", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//        }
+//    }
 
 }
-
-//    @PostMapping("/add/products")
-//    public ResponseEntity<?> createProduct(@RequestBody Product productRequest, Authentication authentication, @RequestHeader Map<String, String> headers) {
-////        log.info("Received product creation request: " + productRequest.toString());
-////        log.info("headers: " + headers);
-////        headers.forEach((key, value) -> {
-////            log.info("Header: " + key + " Value: " + value);
-////        });
-//        // Получаем текущего пользователя из контекста аутентификации
-//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-//        User currentUser = userRepository.findById(userDetails.getId()).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-////        log.info("Authenticated user: " + userDetails.getUsername());
-//
-//        Category category = categoryRepository
-//                .findById(productRequest.getCategory().getId())
-//                .orElseThrow(() -> new RuntimeException("Категория не найдена"));
-//
-//        // Создаем новый продукт с переданными данными и текущим пользователем
-//        Product product = new Product(productRequest.getName(), productRequest.getPrice(), productRequest.getPictureUrl(), currentUser, category);
-//
-//        // Сохраняем продукт
-//        productService.createProduct(product);
-//        return ResponseEntity.status(HttpStatus.CREATED).build();
-//    }
