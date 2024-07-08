@@ -44,7 +44,6 @@ public class CategoryController {
             List<CategoryDTO> categoryDTOList = categoryService.getAllCategories();
             return ResponseEntity.ok(categoryDTOList);
         } catch (Exception e) {
-            log.error("Error fetching categories: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -68,7 +67,6 @@ public class CategoryController {
             Category category = categoryService.updateCategory(categoryId, updatedCategory);
             return ResponseEntity.ok(category);
         } catch (Exception e) {
-            log.error("Error updating category: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
