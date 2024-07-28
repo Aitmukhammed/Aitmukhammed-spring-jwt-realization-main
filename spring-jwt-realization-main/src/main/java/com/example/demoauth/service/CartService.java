@@ -43,6 +43,23 @@ public class CartService {
         cart.setQuantity(cart.getQuantity() + quantity);
         cartRepository.save(cart);
     }
+
+    public void deleteToCart(Long userId, Long productId, int quantity) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Продукт не найден"));
+
+        Optional<Cart> optionalCart = cartRepository.findByUserAndProduct(user, product);
+        Cart cart = optionalCart.orElse(new Cart());
+
+        cart.setUser(user);
+        cart.setProduct(product);
+        cart.setQuantity(cart.getQuantity() - 1);
+        cartRepository.save(cart);
+    }
+
     public List<CartDetails> getUserCartDetails(Long userId) {
         return cartRepository.findUserCartDetails(userId);
     }

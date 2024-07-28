@@ -92,6 +92,19 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
+    public List<ProductDetails> searchProductsByName(String name) {
+        List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
+        // Преобразование List<Product> в List<ProductDetails>
+        return products.stream().map(product -> new ProductDetails(
+                product.getId(),
+                product.getName(),
+                product.getPrice(),
+                product.getPictureUrl(),
+                product.getUser().getUsername(),
+                product.getCategory()
+        )).collect(Collectors.toList());
+    }
+
 // Нужно для функций = (getProductsByCategory) -> Подтягивает продуктов по id категории (Пока не надо = но функция работает)
 //    public List<ProductDetails> getProductsByCategory(Long categoryId) {
 //        List<Product> products = productRepository.findByCategoryId(categoryId);

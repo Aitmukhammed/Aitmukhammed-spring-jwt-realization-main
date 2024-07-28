@@ -101,6 +101,17 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/search/products")
+    public ResponseEntity<List<ProductDetails>> searchProductByName(@RequestParam String name) {
+        try {
+            List<ProductDetails> productDetailsList = productService.searchProductsByName(name);
+            return ResponseEntity.ok(productDetailsList);
+        } catch (Exception e) {
+            log.error("Error searching products: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 // Подтягивает продуктов по id категории (Пока не надо = но функция работает)
 
 //    @GetMapping("/products/category/{categoryId}")

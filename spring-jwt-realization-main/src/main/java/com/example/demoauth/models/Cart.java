@@ -58,4 +58,8 @@ public class Cart {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    public Long getUserId() {
+        return user != null ? user.getId() : null;
+    }
 }
